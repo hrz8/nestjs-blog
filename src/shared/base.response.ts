@@ -1,7 +1,14 @@
-export class BaseResponse<T> {
-  public statusCode: number = 200;
-  public error: any = null;
-  public message: string = 'ok';
-  public data: Array<T>;
-  public total: number = 0;
+class BaseResponse {
+  error: any = null;
+  message: string = 'ok';
+}
+
+export class GetResponse<T> extends BaseResponse {
+  data: Array<T> = new Array<T>();
+  total: number = 0;
+}
+
+export class GetOneResponse<T> extends BaseResponse {
+  data: T;
+  id: string;
 }

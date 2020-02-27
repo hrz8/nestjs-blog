@@ -2,7 +2,7 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { DocumentType, ReturnModelType } from '@typegoose/typegoose';
 import { AnyParamConstructor } from '@typegoose/typegoose/lib/types';
 import { MongoError } from 'mongodb';
-import { DocumentQuery, Types, Query } from 'mongoose';
+import { DocumentQuery, Types } from 'mongoose';
 import { BaseModel } from './base.model';
 
 type QueryList<T extends BaseModel> = DocumentQuery<
@@ -43,10 +43,22 @@ export abstract class BaseService<T extends BaseModel> {
     }
   }
 
-  public async findAllAsync(filter = {}): Promise<Array<DocumentType<T>>> {
+  public async findAllAsync(): Promise<Array<DocumentType<T>>> {
     try {
       return await this.model
-        .find(filter)
+        .find({})
+        .exec();
+    }
+    catch (e) {
+      BaseService.throwMongoError(e);
+    }
+  }
+
+  public async findAllOrderAsync(sort = {}): Promise<Array<DocumentType<T>>> {
+    try {
+      return await this.model
+        .find()
+        .sort(sort)
         .exec();
     }
     catch (e) {
