@@ -43,13 +43,23 @@ export abstract class BaseService<T extends BaseModel> {
     }
   }
 
-  public async findAllAsync(): Promise<Array<DocumentType<T>>> {
+  public async findAllAsync(
+    filter = {},
+    sort = {},
+    offset: number = 0,
+    limit: number = 0
+  ): Promise<Array<DocumentType<T>>> {
     try {
+      console.log(limit)
       return await this.model
-        .find({})
+        .find(filter)
+        .sort(sort)
+        .skip(offset)
+        .limit(limit)
         .exec();
     }
     catch (e) {
+      console.log(e)
       BaseService.throwMongoError(e);
     }
   }

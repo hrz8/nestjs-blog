@@ -4,8 +4,8 @@ import { Category } from '../category/category.model';
 import { BaseModel } from '../shared/base.model';
 
 enum Reaction {
-  LIKE = 'like',
-  DISLIKE = 'dislike',
+  LIKE,
+  DISLIKE
 }
 
 class Comment {

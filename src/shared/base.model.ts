@@ -14,4 +14,8 @@ export abstract class BaseModel {
   public static get modelName(): string {
     return this.name;
   }
+
+  public static get attributeNames(): any {
+    return Object.keys(this.prototype);
+  }
 }
