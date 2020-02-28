@@ -3,7 +3,7 @@ import { PostService } from './article.service';
 import { Article } from './article.model';
 import { ValidateObjectId } from '../shared/pipes/validate-object-id.pipe';
 import { GetResponse } from '../shared/base.response';
-import { BaseMessage } from '../shared/base.message';
+import { BasicFilterMessage, BasicQueryMessage } from '../shared/base.message';
 import { ValidateQueryInteger } from 'src/shared/pipes/validate-query-integer.pipe';
 
 @Controller('article')
@@ -12,42 +12,45 @@ export class ArticleController {
   constructor(private readonly articleService: PostService) {}
 
   @Get('get')
-  public async get(
-    @Res() res,
-    @Query(new ValidateQueryInteger()) query: BaseMessage
-  ): Promise<GetResponse<Article>> {
+  public async get(@Res() res, @Query(new ValidateQueryInteger()) queryString: BasicQueryMessage): Promise<GetResponse<Article>>
+  {
     let response: GetResponse<Article> = new GetResponse<Article>();
     let data: Array<Article> = new Array<Article>();
-    let sort = {}, limit: number, offset: number;
-    if (Object.keys(query).length) {
-      // if (!query.hasOwnProperty('orderBy') ||
-      //     !query.hasOwnProperty('orderAs') ||
-      //     !query.hasOwnProperty('offset') ||
-      //     !query.hasOwnProperty('limit')
-      // ) {
-      //   console.log(query)
-      //   throw new BadRequestException("invalid message key");
-      // }
-      try {
-        if (query.orderBy && query.orderAs) {
-          sort[query.orderBy] = query.orderAs;
-        }
-        limit = query.limit || 0;
-        offset = query.offset || 0;
-        console.log(sort, typeof limit)
-        data = await this.articleService.findAllAsync({}, sort, offset, limit);
-        response.data = data;
+    let filterMessage: BasicFilterMessage<Article> = new BasicFilterMessage<Article>();
+
+    if (Object.keys(queryString).length) {
+
+      if (queryString.filter) {
+        const filters = queryString.filter.split(";");
+        filterMessage.filter = {} as Article;
+        filters.forEach(item => {
+          const regexComma: RegExp = /^(\w+),(\w+)$/;
+          const filter = item.match(regexComma);
+          filterMessage.filter[filter[1]] = new RegExp(filter[2], 'i');
+        });
       }
-      catch {
-        throw new BadRequestException("invalid message value");
+
+      if (queryString.order) {
+        const regexComma: RegExp = /^(\w+),(\w+)$/;
+        const order = queryString.order.match(regexComma);
+        filterMessage.sort[order[1]] = order[2];
       }
+
+      filterMessage.limit = queryString.limit;
+      filterMessage.offset = queryString.offset;
     }
-    else {
-      data = await this.articleService.findAllAsync();
-      response.data = data;
+
+    try {
+      data = await this.articleService.findAsync(filterMessage);
     }
+    catch {
+      throw new BadRequestException("invalid message");
+    }
+
     response.message = "successfully fetched";
     response.total = data.length;
+    response.data = data;
+
     return res.status(HttpStatus.OK).json(response);
   }
   
@@ -67,6 +70,7 @@ export class ArticleController {
       data: data
     });
   }
+
   @Post('create')
   public async create(@Res() res, @Body() message: Article): Promise<Article> {
     const newData = await this.articleService.createAsync(message);

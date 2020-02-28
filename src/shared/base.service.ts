@@ -4,6 +4,7 @@ import { AnyParamConstructor } from '@typegoose/typegoose/lib/types';
 import { MongoError } from 'mongodb';
 import { DocumentQuery, Types } from 'mongoose';
 import { BaseModel } from './base.model';
+import { BasicFilterMessage } from './base.message';
 
 type QueryList<T extends BaseModel> = DocumentQuery<
   Array<DocumentType<T>>,
@@ -43,43 +44,13 @@ export abstract class BaseService<T extends BaseModel> {
     }
   }
 
-  public async findAllAsync(
-    filter = {},
-    sort = {},
-    offset: number = 0,
-    limit: number = 0
-  ): Promise<Array<DocumentType<T>>> {
-    try {
-      console.log(limit)
-      return await this.model
-        .find(filter)
-        .sort(sort)
-        .skip(offset)
-        .limit(limit)
-        .exec();
-    }
-    catch (e) {
-      console.log(e)
-      BaseService.throwMongoError(e);
-    }
-  }
-
-  public async findAllOrderAsync(sort = {}): Promise<Array<DocumentType<T>>> {
+  public async findAsync(message?: BasicFilterMessage<T>): Promise<Array<DocumentType<T>>> {
     try {
       return await this.model
-        .find()
-        .sort(sort)
-        .exec();
-    }
-    catch (e) {
-      BaseService.throwMongoError(e);
-    }
-  }
-
-  public async findOneAsync(filter = {}): Promise<DocumentType<T>> {
-    try {
-      return await this.model
-        .findOne(filter)
+        .find(message.filter)
+        .sort(message.sort)
+        .skip(message.offset)
+        .limit(message.limit)
         .exec();
     }
     catch (e) {

@@ -1,6 +1,15 @@
-export class BaseMessage {
-  public orderBy?: string;
-  public orderAs?: string;
+class BaseMessage {
   public offset?: number = 0;
   public limit?: number = 0;
 }
+
+export class BasicQueryMessage extends BaseMessage {
+  public filter?: string;
+  public order?: string;
+}
+
+export class BasicFilterMessage<T> extends BaseMessage {
+  public filter?: T;
+  public sort?: any = {};
+}
+

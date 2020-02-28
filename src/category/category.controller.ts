@@ -8,7 +8,7 @@ export class CategoryController {
 
   @Get('get')
   public async get(): Promise<Category[] | null> {
-    return await this.categoryService.findAllAsync();
+    return await this.categoryService.findAsync();
   }
 
   @Post('create')
