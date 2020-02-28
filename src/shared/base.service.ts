@@ -30,7 +30,7 @@ export abstract class BaseService<T extends BaseModel> {
     try {
       return Types.ObjectId(id);
     }
-    catch (e) {
+    catch(e) {
       BaseService.throwMongoError(e);
     }
   }
@@ -39,7 +39,7 @@ export abstract class BaseService<T extends BaseModel> {
     try {
       return await this.model.create(item);
     }
-    catch (e) {
+    catch(e) {
       BaseService.throwMongoError(e);
     }
   }
@@ -51,9 +51,10 @@ export abstract class BaseService<T extends BaseModel> {
         .sort(message.sort)
         .skip(message.offset)
         .limit(message.limit)
+        .select('-__v')
         .exec();
     }
-    catch (e) {
+    catch(e) {
       BaseService.throwMongoError(e);
     }
   }
@@ -62,9 +63,10 @@ export abstract class BaseService<T extends BaseModel> {
     try {
       return await this.model
         .findById(BaseService.toObjectId(id))
+        .select('-__v')
         .exec();
     }
-    catch (e) {
+    catch(e) {
       BaseService.throwMongoError(e);
     }
   }
@@ -75,7 +77,7 @@ export abstract class BaseService<T extends BaseModel> {
         .findOneAndDelete(filter)
         .exec();
     }
-    catch (e) {
+    catch(e) {
       BaseService.throwMongoError(e);
     }
   }
@@ -86,7 +88,7 @@ export abstract class BaseService<T extends BaseModel> {
         .findByIdAndDelete(BaseService.toObjectId(id))
         .exec();
     }
-    catch (e) {
+    catch(e) {
       BaseService.throwMongoError(e);
     }
   }
@@ -97,7 +99,7 @@ export abstract class BaseService<T extends BaseModel> {
         .findByIdAndUpdate(BaseService.toObjectId(item.id), item, { new: true })
         .exec();
     }
-    catch (e) {
+    catch(e) {
       BaseService.throwMongoError(e);
     }
   }
@@ -106,7 +108,7 @@ export abstract class BaseService<T extends BaseModel> {
     try {
       return await this.model.count(filter);
     }
-    catch (e) {
+    catch(e) {
       BaseService.throwMongoError(e);
     }
   }

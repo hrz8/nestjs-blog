@@ -23,16 +23,16 @@ export class Article extends BaseModel {
   public title!: string;
 
   @IsString()
-  @prop()
+  @prop({ default: "" })
   public description?: string;
 
   @IsString()
   @prop({ required: true })
   public body!: string;
-  
+
   @IsNumber()
   @prop({ default: 0 })
-  public likes: number;
+  public likes?: number;
 
   @prop({ required: true, ref: Category })
   public category?: Ref<Category>;

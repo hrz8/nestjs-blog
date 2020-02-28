@@ -12,15 +12,15 @@ export abstract class BaseModel {
       toJSON: {
         getters: true,
         virtuals: true,
+        transform: (doc, ret, options) => {
+          delete ret._id;
+          return ret;
+      }
       },
     };
   }
 
   public static get modelName(): string {
     return this.name;
-  }
-
-  public static get attributeNames(): any {
-    return Object.keys(this.prototype);
   }
 }

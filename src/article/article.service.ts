@@ -5,7 +5,7 @@ import { BaseService } from '../shared/base.service';
 import { Article } from './article.model';
 
 @Injectable()
-export class PostService extends BaseService<Article> {
+export class ArticleService extends BaseService<Article> {
   constructor(
     @InjectModel(Article)
     private readonly articleModel: ReturnModelType<typeof Article>,
