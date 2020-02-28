@@ -12,6 +12,7 @@ export abstract class BaseModel {
       toJSON: {
         getters: true,
         virtuals: true,
+        versionKey: false,
         transform: (doc, ret, options) => {
           delete ret._id;
           return ret;

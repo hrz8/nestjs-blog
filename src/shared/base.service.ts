@@ -35,15 +35,6 @@ export abstract class BaseService<T extends BaseModel> {
     }
   }
 
-  public async createAsync(item: T): Promise<DocumentType<T>> {
-    try {
-      return await this.model.create(item);
-    }
-    catch(e) {
-      BaseService.throwMongoError(e);
-    }
-  }
-
   public async findAsync(message?: BasicFilterMessage<T>): Promise<Array<DocumentType<T>>> {
     try {
       return await this.model
@@ -51,7 +42,6 @@ export abstract class BaseService<T extends BaseModel> {
         .sort(message.sort)
         .skip(message.offset)
         .limit(message.limit)
-        .select('-__v')
         .exec();
     }
     catch(e) {
@@ -63,7 +53,27 @@ export abstract class BaseService<T extends BaseModel> {
     try {
       return await this.model
         .findById(BaseService.toObjectId(id))
-        .select('-__v')
+        .exec();
+    }
+    catch(e) {
+      BaseService.throwMongoError(e);
+    }
+  }
+
+  public async createAsync(item: T): Promise<DocumentType<T>> {
+    try {
+      return await this.model
+        .create(item);
+    }
+    catch(e) {
+      BaseService.throwMongoError(e);
+    }
+  }
+
+  public async updateAsync(item: T): Promise<DocumentType<T>> {
+    try {
+      return await this.model
+        .findByIdAndUpdate(BaseService.toObjectId(item.id), item, { new: true })
         .exec();
     }
     catch(e) {
@@ -86,17 +96,6 @@ export abstract class BaseService<T extends BaseModel> {
     try {
       return await this.model
         .findByIdAndDelete(BaseService.toObjectId(id))
-        .exec();
-    }
-    catch(e) {
-      BaseService.throwMongoError(e);
-    }
-  }
-
-  public async updateAsync(item: T): Promise<DocumentType<T>> {
-    try {
-      return await this.model
-        .findByIdAndUpdate(BaseService.toObjectId(item.id), item, { new: true })
         .exec();
     }
     catch(e) {

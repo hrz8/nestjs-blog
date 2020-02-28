@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Res, HttpStatus, Param, NotFoundException, Query, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Res, HttpStatus, Param, NotFoundException, Query, Put, BadRequestException } from '@nestjs/common';
 import * as mongoose from 'mongoose';
 import { ArticleService } from './article.service';
 import { Article } from './article.model';
@@ -83,7 +83,7 @@ export class ArticleController {
   public async getById(@Res() res, @Param('id', new ValidateObjectId()) id): Promise<Article>
   {
     let response: GetOneResponse<Article> = new GetOneResponse<Article>();
-    let data: Article = await this.articleService.findByIdAsync(id);
+    const data: Article = await this.articleService.findByIdAsync(id);
 
     if (!data) {
       throw new NotFoundException("unknown id");
@@ -96,7 +96,7 @@ export class ArticleController {
     return res.status(HttpStatus.OK).json(response);
   }
 
-  @Post('create')
+  @Post('')
   public async create(@Res() res, @Body() message: Article): Promise<Article>
   {
     let response: ActionResponse<Article> = new ActionResponse<Article>();
@@ -106,6 +106,28 @@ export class ArticleController {
     response.action = "create";
     response.id = newData.id;
     response.data = newData;
+
+    return res.status(HttpStatus.OK).json(response);
+  }
+
+  @Put(':id')
+  public async update(@Res() res, @Param('id', new ValidateObjectId()) id, @Body() message: Article): Promise<Article>
+  {
+    if (id !== message.id) {
+      throw new BadRequestException("invalid id match");
+    }
+
+    let response: ActionResponse<Article> = new ActionResponse<Article>();
+    const editData: Article = await this.articleService.updateAsync(message);
+
+    if (!editData) {
+        throw new NotFoundException('unknown id');
+    }
+
+    response.message = "successfully updated";
+    response.action = "update";
+    response.id = editData.id;
+    response.data = editData;
 
     return res.status(HttpStatus.OK).json(response);
   }
