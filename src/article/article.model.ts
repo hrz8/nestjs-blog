@@ -1,5 +1,5 @@
 import { prop, Ref, arrayProp } from '@typegoose/typegoose';
-import { IsString } from 'class-validator';
+import { IsString, IsNumber } from 'class-validator';
 import { Category } from '../category/category.model';
 import { BaseModel } from '../shared/base.model';
 
@@ -29,6 +29,10 @@ export class Article extends BaseModel {
   @IsString()
   @prop({ required: true })
   public body!: string;
+  
+  @IsNumber()
+  @prop({ default: 0 })
+  public likes: number;
 
   @prop({ required: true, ref: Category })
   public category?: Ref<Category>;

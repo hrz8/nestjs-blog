@@ -1,4 +1,9 @@
+import { prop } from "@typegoose/typegoose";
+
 export abstract class BaseModel {
+  public createdAt?: any;
+
+  public updatedAt?: any; 
   public id?: string;
 
   public static get schema(): any {

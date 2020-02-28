@@ -1,4 +1,6 @@
 import { Controller, Get, Post, Body, Res, HttpStatus, Param, NotFoundException, Query, BadRequestException } from '@nestjs/common';
+import * as moment from 'moment';
+import * as mongoose from 'mongoose';
 import { PostService } from './article.service';
 import { Article } from './article.model';
 import { ValidateObjectId } from '../shared/pipes/validate-object-id.pipe';
@@ -14,25 +16,46 @@ export class ArticleController {
   @Get('get')
   public async get(@Res() res, @Query(new ValidateQueryInteger()) queryString: BasicQueryMessage): Promise<GetResponse<Article>>
   {
+    // ?sort=description:desc&filter=likes:56;category:5e588991aaace037d00cc9d3;date:1582822800000-1582866000000
     let response: GetResponse<Article> = new GetResponse<Article>();
     let data: Array<Article> = new Array<Article>();
     let filterMessage: BasicFilterMessage<Article> = new BasicFilterMessage<Article>();
 
     if (Object.keys(queryString).length) {
+      const regexColon: RegExp = /^(\w+):(\w+(?:\-\w+)?)$/;
 
       if (queryString.filter) {
         const filters = queryString.filter.split(";");
-        filterMessage.filter = {} as Article;
         filters.forEach(item => {
-          const regexComma: RegExp = /^(\w+),(\w+)$/;
-          const filter = item.match(regexComma);
-          filterMessage.filter[filter[1]] = new RegExp(filter[2], 'i');
+          const filter = item.match(regexColon);
+          if (filter[1] === 'date') {
+            const rangeDate = filter[2].split("-");
+            const startDate = rangeDate[0];
+            const endDate = rangeDate[1];
+            filterMessage.filter.createdAt = {
+              $gte: new Date(Number(startDate)),
+              $lte: new Date(Number(endDate))
+            }
+          }
+          else {
+            const regexDecimal: RegExp = /^\d+$/;
+            if (regexDecimal.test(filter[2])) {
+              filterMessage.filter[filter[1]] = Number(filter[2]);
+            }
+            else {
+              if (mongoose.Types.ObjectId.isValid(filter[2])) {
+                filterMessage.filter[filter[1]] = filter[2];
+              }
+              else {
+                filterMessage.filter[filter[1]] = new RegExp(filter[2], 'i');
+              }
+            }
+          }
         });
       }
 
       if (queryString.order) {
-        const regexComma: RegExp = /^(\w+),(\w+)$/;
-        const order = queryString.order.match(regexComma);
+        const order = queryString.order.match(regexColon);
         filterMessage.sort[order[1]] = order[2];
       }
 
@@ -82,4 +105,3 @@ export class ArticleController {
     });
   }
 }
-

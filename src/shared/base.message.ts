@@ -9,7 +9,6 @@ export class BasicQueryMessage extends BaseMessage {
 }
 
 export class BasicFilterMessage<T> extends BaseMessage {
-  public filter?: T;
+  public filter?: T = {} as T;
   public sort?: any = {};
 }
-
