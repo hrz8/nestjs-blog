@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Res, HttpStatus, Param, NotFoundException, Query, Put, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Res, HttpStatus, Param, NotFoundException, Query, Put, BadRequestException, Delete } from '@nestjs/common';
 import * as mongoose from 'mongoose';
 import { ArticleService } from './article.service';
 import { Article } from './article.model';
@@ -15,8 +15,8 @@ export class ArticleController {
   @Get('')
   public async get(@Res() res, @Query(new ValidateQueryInteger()) queryString: BasicQueryMessage): Promise<GetResponse<Article>>
   {
-    // ?limit=1
-    // &sort=description:desc
+    // ?limit=1&offset=10
+    // &order=description:desc
     // &filter=likes:56;category:5e588991aaace037d00cc9d3;date:1582822800000-1582866000000
 
     let response: GetResponse<Article> = new GetResponse<Article>();
@@ -26,10 +26,12 @@ export class ArticleController {
     if (Object.keys(queryString).length) {
       const regexColon: RegExp = /^(\w+):(\w+(?:\-\w+)?)$/;
 
+      // &filter=field:value;field2:value
       if (queryString.filter) {
         const filters = queryString.filter.split(";");
         filters.forEach(item => {
           const filter = item.match(regexColon);
+          // date:1582822800000-1582866000000
           if (filter[1] === 'date') {
             const rangeDate = filter[2].split("-");
             const startDate = Number(rangeDate[0]);
@@ -41,13 +43,16 @@ export class ArticleController {
           }
           else {
             const regexDecimal: RegExp = /^\d+$/;
+            // likes:56
             if (regexDecimal.test(filter[2])) {
               filterMessage.filter[filter[1]] = Number(filter[2]);
             }
             else {
+              // id=5e57e5eb83775a2ec42cec29
               if (mongoose.Types.ObjectId.isValid(filter[2])) {
                 filterMessage.filter[filter[1]] = filter[2];
               }
+              // category:5e588991aaace037d00cc9d3;name:how
               else {
                 filterMessage.filter[filter[1]] = new RegExp(filter[2], 'i');
               }
@@ -56,11 +61,13 @@ export class ArticleController {
         });
       }
 
+      // &order=description:desc
       if (queryString.order) {
         const order = queryString.order.match(regexColon);
         filterMessage.sort[order[1]] = order[2];
       }
 
+      // &limit=1&offset=10
       filterMessage.limit = queryString.limit;
       filterMessage.offset = queryString.offset;
     }
@@ -113,6 +120,10 @@ export class ArticleController {
   @Put(':id')
   public async update(@Res() res, @Param('id', new ValidateObjectId()) id, @Body() message: Article): Promise<Article>
   {
+    if (!id || !message.id) {
+      throw new NotFoundException("id required");
+    }
+
     if (id !== message.id) {
       throw new BadRequestException("invalid id match");
     }
@@ -128,6 +139,19 @@ export class ArticleController {
     response.action = "update";
     response.id = editData.id;
     response.data = editData;
+
+    return res.status(HttpStatus.OK).json(response);
+  }
+
+  @Delete(':id')
+  public async delete(@Res() res, @Param('id', new ValidateObjectId()) id): Promise<Article>
+  {
+    let response: ActionResponse<Article> = new ActionResponse<Article>();
+    const deleteData: Article = await this.articleService.deleteByIdAsync(id);
+
+    response.message = "successfully deleted";
+    response.action = "delete";
+    response.id = deleteData.id;
 
     return res.status(HttpStatus.OK).json(response);
   }

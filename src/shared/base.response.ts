@@ -10,7 +10,7 @@ export class GetResponse<T> extends BaseResponse {
 }
 
 export class GetOneResponse<T> extends BaseResponse {
-  public data: T = {} as T;
+  public data?: T = {} as T;
   public id: string;
 }
 
