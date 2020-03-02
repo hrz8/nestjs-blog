@@ -1,18 +1,11 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { Category } from './category.model';
+import { BaseController } from '../shared/base.controller';
 
 @Controller('category')
-export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) {}
-
-  @Get('get')
-  public async get(): Promise<Category[] | null> {
-    return await this.categoryService.findAsync();
-  }
-
-  @Post('create')
-  public async create(@Body() newCategory: Category): Promise<Category> {
-    return await this.categoryService.createAsync(newCategory);
+export class CategoryController extends BaseController<Category> {
+  constructor(private readonly categoryService: CategoryService) {
+    super(categoryService);
   }
 }
