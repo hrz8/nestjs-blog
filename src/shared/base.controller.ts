@@ -17,7 +17,8 @@ export class BaseController<TModel extends BaseModel> {
   public async get(@Res() res, @Query(new ValidateQueryInteger()) queryString: BasicQueryMessage): Promise<GetResponse<TModel>>
   {
     // ?limit=1&offset=10
-    // &order=description:desc
+    // &populate=category,comment
+    // &sort=description:desc
     // &filter=likes:56;category:5e588991aaace037d00cc9d3;date:1582822800000-1582866000000
 
     let response: GetResponse<TModel> = new GetResponse<TModel>();
@@ -62,10 +63,18 @@ export class BaseController<TModel extends BaseModel> {
         });
       }
 
-      // &order=description:desc
-      if (queryString.order) {
-        const order = queryString.order.match(regexColon);
+      // &sort=description:desc
+      if (queryString.sort) {
+        const order = queryString.sort.match(regexColon);
         filterMessage.sort[order[1]] = order[2];
+      }
+
+      // &populate=category,comment
+      if (queryString.populate) {
+        const regexComma: RegExp = /^(\w+)(,(\w+))?$/;
+        if (regexComma.test(queryString.populate)) {
+          filterMessage.populate = queryString.populate.replace(/,/g, ' ');
+        }
       }
 
       // &limit=1&offset=10

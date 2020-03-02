@@ -42,6 +42,7 @@ export abstract class BaseService<T extends BaseModel> {
         .sort(message.sort)
         .skip(message.offset)
         .limit(message.limit)
+        .populate(message.populate)
         .exec();
     }
     catch(e) {
@@ -49,10 +50,11 @@ export abstract class BaseService<T extends BaseModel> {
     }
   }
 
-  public async findByIdAsync(id: string): Promise<DocumentType<T>> {
+  public async findByIdAsync(id: string, populate: string = ''): Promise<DocumentType<T>> {
     try {
       return await this.model
         .findById(BaseService.toObjectId(id))
+        .populate(populate)
         .exec();
     }
     catch(e) {

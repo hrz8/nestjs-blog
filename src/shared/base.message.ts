@@ -5,10 +5,12 @@ class BaseMessage {
 
 export class BasicQueryMessage extends BaseMessage {
   public filter?: string;
-  public order?: string;
+  public sort?: string;
+  public populate?: string;
 }
 
 export class BasicFilterMessage<T> extends BaseMessage {
   public filter?: T = {} as T;
   public sort?: any = {};
+  public populate?: string = '';
 }
