@@ -1,4 +1,8 @@
-import { Controller, Get, Post, Body, Res, HttpStatus, Param, NotFoundException, Query, Put, BadRequestException, Delete } from '@nestjs/common';
+import {
+  Controller, 
+  Get, Post, Body, Res, Query, Put, Delete, Param,
+  HttpStatus, NotFoundException,  BadRequestException,
+} from '@nestjs/common';
 import * as mongoose from 'mongoose';
 import { ValidateObjectId } from './pipes/validate-object-id.pipe';
 import { ValidateQueryInteger } from './pipes/validate-query-integer.pipe';
@@ -9,18 +13,14 @@ import { BaseModel } from './base.model';
 @Controller()
 export class BaseController<TModel extends BaseModel> {
   private readonly dataService: any;
-  constructor(public DataService: any) {
+  constructor(public DataService: any)
+  {
     this.dataService = DataService;
-}
+  }
 
-  @Get('')
+  @Get('/')
   public async get(@Res() res, @Query(new ValidateQueryInteger()) queryString: BasicQueryMessage): Promise<GetResponse<TModel>>
   {
-    // ?limit=1&offset=10
-    // &populate=category,comment
-    // &sort=description:desc
-    // &filter=likes:56;category:5e588991aaace037d00cc9d3;date:1582822800000-1582866000000
-
     let response: GetResponse<TModel> = new GetResponse<TModel>();
     let data: Array<TModel> = new Array<TModel>();
     let filterMessage: BasicFilterMessage<TModel> = new BasicFilterMessage<TModel>();
@@ -28,12 +28,10 @@ export class BaseController<TModel extends BaseModel> {
     if (Object.keys(queryString).length) {
       const regexColon: RegExp = /^(\w+):(\w+(?:\-\w+)?)$/;
 
-      // &filter=field:value;field2:value
       if (queryString.filter) {
         const filters = queryString.filter.split(";");
         filters.forEach(item => {
           const filter = item.match(regexColon);
-          // date:1582822800000-1582866000000
           if (filter[1] === 'date') {
             const rangeDate = filter[2].split("-");
             const startDate = Number(rangeDate[0]);
@@ -45,18 +43,15 @@ export class BaseController<TModel extends BaseModel> {
           }
           else {
             const regexDecimal: RegExp = /^\d+$/;
-            // likes:56
             if (regexDecimal.test(filter[2])) {
               filterMessage.filter[filter[1]] = Number(filter[2]);
             }
             else {
-              // category:5e588991aaace037d00cc9d3
               if (mongoose.Types.ObjectId.isValid(filter[2])) {
                 if (filter[1] !== '_id') {
                   filterMessage.filter[filter[1]] = filter[2];
                 }
               }
-              // description:how
               else {
                 filterMessage.filter[filter[1]] = new RegExp(filter[2], 'i');
               }
@@ -65,13 +60,11 @@ export class BaseController<TModel extends BaseModel> {
         });
       }
 
-      // &sort=description:desc
       if (queryString.sort) {
         const order = queryString.sort.match(regexColon);
         filterMessage.sort[order[1]] = order[2];
       }
 
-      // &populate=category,comment
       if (queryString.populate) {
         const regexComma: RegExp = /^(\w+)(,(\w+))?$/;
         if (regexComma.test(queryString.populate)) {
@@ -79,7 +72,6 @@ export class BaseController<TModel extends BaseModel> {
         }
       }
 
-      // &limit=1&offset=10
       filterMessage.limit = queryString.limit;
       filterMessage.offset = queryString.offset;
     }
@@ -98,7 +90,7 @@ export class BaseController<TModel extends BaseModel> {
     return res.status(HttpStatus.OK).json(response);
   }
   
-  @Get(':id')
+  @Get('/:id')
   public async getById(@Res() res, @Param('id', new ValidateObjectId()) id): Promise<TModel>
   {
     let response: GetOneResponse<TModel> = new GetOneResponse<TModel>();
@@ -115,7 +107,7 @@ export class BaseController<TModel extends BaseModel> {
     return res.status(HttpStatus.OK).json(response);
   }
 
-  @Post('')
+  @Post('/')
   public async create(@Res() res, @Body() message: TModel): Promise<TModel>
   {
     let response: ActionResponse<TModel> = new ActionResponse<TModel>();
@@ -129,7 +121,7 @@ export class BaseController<TModel extends BaseModel> {
     return res.status(HttpStatus.OK).json(response);
   }
 
-  @Put(':id')
+  @Put('/:id')
   public async update(@Res() res, @Param('id', new ValidateObjectId()) id, @Body() message: TModel): Promise<TModel>
   {
     if (!id || !message.id) {
@@ -155,7 +147,7 @@ export class BaseController<TModel extends BaseModel> {
     return res.status(HttpStatus.OK).json(response);
   }
 
-  @Delete(':id')
+  @Delete('/:id')
   public async delete(@Res() res, @Param('id', new ValidateObjectId()) id): Promise<TModel>
   {
     let response: ActionResponse<TModel> = new ActionResponse<TModel>();

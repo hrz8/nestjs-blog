@@ -1,11 +1,11 @@
 import { prop, Ref, arrayProp } from '@typegoose/typegoose';
 import { IsString, IsNumber } from 'class-validator';
 import { Category } from '../category/category.model';
-import { BaseModel } from '../shared/base.model';
+import { BaseModel } from '../../shared/base.model';
 
 enum Reaction {
-  LIKE,
-  DISLIKE
+  DISLIKE,
+  LIKE
 }
 
 class Comment {

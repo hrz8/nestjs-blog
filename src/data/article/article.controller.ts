@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
+import { BaseController } from '../../shared/base.controller';
 import { ArticleService } from './article.service';
 import { Article } from './article.model';
-import { BaseController } from '../shared/base.controller';
 
 @Controller('article')
 export class ArticleController extends BaseController<Article> {

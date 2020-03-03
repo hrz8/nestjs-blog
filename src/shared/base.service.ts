@@ -18,15 +18,18 @@ type QueryItem<T extends BaseModel> = DocumentQuery<
 export abstract class BaseService<T extends BaseModel> {
   protected model: ReturnModelType<AnyParamConstructor<T>>;
 
-  protected constructor(model: ReturnModelType<AnyParamConstructor<T>>) {
+  protected constructor(model: ReturnModelType<AnyParamConstructor<T>>)
+  {
     this.model = model;
   }
 
-  protected static throwMongoError(err: MongoError): void {
+  protected static throwMongoError(err: MongoError): void
+  {
     throw new InternalServerErrorException(err, err.errmsg);
   }
 
-  protected static toObjectId(id: string): Types.ObjectId {
+  protected static toObjectId(id: string): Types.ObjectId
+  {
     try {
       return Types.ObjectId(id);
     }
@@ -35,7 +38,8 @@ export abstract class BaseService<T extends BaseModel> {
     }
   }
 
-  public async findAsync(message?: BasicFilterMessage<T>): Promise<Array<DocumentType<T>>> {
+  public async findAsync(message?: BasicFilterMessage<T>): Promise<Array<DocumentType<T>>>
+  {
     try {
       return await this.model
         .find(message.filter)
@@ -50,7 +54,21 @@ export abstract class BaseService<T extends BaseModel> {
     }
   }
 
-  public async findByIdAsync(id: string, populate: string = ''): Promise<DocumentType<T>> {
+  public async findOneAsync(message?: BasicFilterMessage<T>): Promise<DocumentType<T>>
+  {
+    try {
+      return await this.model
+        .findOne(message.filter)
+        .populate(message.populate)
+        .exec();
+    }
+    catch(e) {
+      BaseService.throwMongoError(e);
+    }
+  }
+
+  public async findByIdAsync(id: string, populate: string = ''): Promise<DocumentType<T>>
+  {
     try {
       return await this.model
         .findById(BaseService.toObjectId(id))
@@ -62,7 +80,8 @@ export abstract class BaseService<T extends BaseModel> {
     }
   }
 
-  public async createAsync(item: T): Promise<DocumentType<T>> {
+  public async createAsync(item: T): Promise<DocumentType<T>>
+  {
     try {
       return await this.model
         .create(item);
@@ -72,7 +91,8 @@ export abstract class BaseService<T extends BaseModel> {
     }
   }
 
-  public async updateAsync(item: T): Promise<DocumentType<T>> {
+  public async updateAsync(item: T): Promise<DocumentType<T>>
+  {
     try {
       return await this.model
         .findByIdAndUpdate(BaseService.toObjectId(item.id), item, { new: true })
@@ -83,7 +103,8 @@ export abstract class BaseService<T extends BaseModel> {
     }
   }
 
-  public async deleteAsync(filter = {}): Promise<DocumentType<T>> {
+  public async deleteAsync(filter = {}): Promise<DocumentType<T>>
+  {
     try {
       return await this.model
         .findOneAndDelete(filter)
@@ -94,7 +115,8 @@ export abstract class BaseService<T extends BaseModel> {
     }
   }
 
-  public async deleteByIdAsync(id: string): Promise<DocumentType<T>> {
+  public async deleteByIdAsync(id: string): Promise<DocumentType<T>>
+  {
     try {
       return await this.model
         .findByIdAndDelete(BaseService.toObjectId(id))
@@ -105,7 +127,8 @@ export abstract class BaseService<T extends BaseModel> {
     }
   }
 
-  public async countAsync(filter = {}): Promise<number> {
+  public async countAsync(filter = {}): Promise<number>
+  {
     try {
       return await this.model.count(filter);
     }

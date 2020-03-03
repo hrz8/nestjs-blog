@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from "nestjs-typegoose";
 import { ReturnModelType } from '@typegoose/typegoose/lib/types';
-import { BaseService } from '../shared/base.service';
+import { BaseService } from '../../shared/base.service';
 import { Category } from './category.model';
 
 @Injectable()
