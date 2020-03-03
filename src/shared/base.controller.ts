@@ -18,7 +18,7 @@ export class BaseController<TModel extends BaseModel> {
     this.dataService = DataService;
   }
 
-  @Get('/')
+  @Get()
   public async get(@Res() res, @Query(new ValidateQueryInteger()) queryString: BasicQueryMessage): Promise<GetResponse<TModel>>
   {
     let response: GetResponse<TModel> = new GetResponse<TModel>();
@@ -90,7 +90,7 @@ export class BaseController<TModel extends BaseModel> {
     return res.status(HttpStatus.OK).json(response);
   }
   
-  @Get('/:id')
+  @Get(':id')
   public async getById(@Res() res, @Param('id', new ValidateObjectId()) id): Promise<TModel>
   {
     let response: GetOneResponse<TModel> = new GetOneResponse<TModel>();
@@ -107,7 +107,7 @@ export class BaseController<TModel extends BaseModel> {
     return res.status(HttpStatus.OK).json(response);
   }
 
-  @Post('/')
+  @Post()
   public async create(@Res() res, @Body() message: TModel): Promise<TModel>
   {
     let response: ActionResponse<TModel> = new ActionResponse<TModel>();
@@ -121,7 +121,7 @@ export class BaseController<TModel extends BaseModel> {
     return res.status(HttpStatus.OK).json(response);
   }
 
-  @Put('/:id')
+  @Put(':id')
   public async update(@Res() res, @Param('id', new ValidateObjectId()) id, @Body() message: TModel): Promise<TModel>
   {
     if (!id || !message.id) {
@@ -147,7 +147,7 @@ export class BaseController<TModel extends BaseModel> {
     return res.status(HttpStatus.OK).json(response);
   }
 
-  @Delete('/:id')
+  @Delete(':id')
   public async delete(@Res() res, @Param('id', new ValidateObjectId()) id): Promise<TModel>
   {
     let response: ActionResponse<TModel> = new ActionResponse<TModel>();

@@ -15,8 +15,8 @@ export class User extends BaseModel {
   public username!: string;
 
   @IsEmail()
-  @prop({ unique: true })
-  public email?: string;
+  @prop({ required: true, unique: true })
+  public email!: string;
 
   @prop({ required: true })
   public password!: string;
