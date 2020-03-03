@@ -1,4 +1,4 @@
-class BaseResponse {
+export class BaseResponse {
   public statusCode: number = 200;
   public error: any = null;
   public message: string;

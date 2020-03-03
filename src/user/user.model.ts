@@ -2,7 +2,7 @@ import { prop } from '@typegoose/typegoose';
 import { IsString, IsEmail } from 'class-validator';
 import { BaseModel } from '../shared/base.model';
 
-export class User extends BaseModel {
+export class UserSafe extends BaseModel {
   @IsString()
   @prop({ required: true })
   public firstName!: string;
@@ -17,7 +17,9 @@ export class User extends BaseModel {
   @IsEmail()
   @prop({ required: true, unique: true })
   public email!: string;
+}
 
+export class User extends UserSafe {
   @prop({ required: true })
   public password!: string;
 }
