@@ -50,11 +50,13 @@ export class BaseController<TModel extends BaseModel> {
               filterMessage.filter[filter[1]] = Number(filter[2]);
             }
             else {
-              // id=5e57e5eb83775a2ec42cec29
+              // category:5e588991aaace037d00cc9d3
               if (mongoose.Types.ObjectId.isValid(filter[2])) {
-                filterMessage.filter[filter[1]] = filter[2];
+                if (filter[1] !== '_id') {
+                  filterMessage.filter[filter[1]] = filter[2];
+                }
               }
-              // category:5e588991aaace037d00cc9d3;name:how
+              // description:how
               else {
                 filterMessage.filter[filter[1]] = new RegExp(filter[2], 'i');
               }
@@ -89,7 +91,7 @@ export class BaseController<TModel extends BaseModel> {
       data = await this.dataService.findAsync(new BasicFilterMessage<TModel>());
     }
 
-    response.message = "successfully fetched";
+    response.message = data.length ? "successfully fetched" : "data is empty";
     response.total = data.length;
     response.data = data;
 
