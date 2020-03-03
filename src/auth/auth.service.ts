@@ -24,7 +24,8 @@ export class AuthService {
     return null;
   }
 
-  public async login(user: User): Promise<LoginResponse> {
+  public async login(user: User): Promise<LoginResponse>
+  {
     const response: LoginResponse = new LoginResponse();
     const { password, ...userSafe } = user;
 
