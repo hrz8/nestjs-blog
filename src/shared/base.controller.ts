@@ -12,6 +12,7 @@ import { BasicFilterMessage, BasicQueryMessage } from '../shared/base.message';
 import { BaseModel } from './base.model';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller()
 export class BaseController<TModel extends BaseModel> {
   private readonly dataService: any;
@@ -20,7 +21,6 @@ export class BaseController<TModel extends BaseModel> {
     this.dataService = DataService;
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get()
   public async get(@Res() res, @Query(new ValidateQueryInteger()) queryString: BasicQueryMessage): Promise<GetResponse<TModel>>
   {
@@ -94,7 +94,7 @@ export class BaseController<TModel extends BaseModel> {
   }
   
   @Get(':id')
-  public async getById(@Res() res, @Param('id', new ValidateObjectId()) id): Promise<TModel>
+  public async getById(@Res() res, @Param('id', new ValidateObjectId()) id): Promise<GetOneResponse<TModel>>
   {
     let response: GetOneResponse<TModel> = new GetOneResponse<TModel>();
     const data: TModel = await this.dataService.findByIdAsync(id);
@@ -111,7 +111,7 @@ export class BaseController<TModel extends BaseModel> {
   }
 
   @Post()
-  public async create(@Res() res, @Body() message: TModel): Promise<TModel>
+  public async create(@Res() res, @Body() message: TModel): Promise<ActionResponse<any>>
   {
     let response: ActionResponse<TModel> = new ActionResponse<TModel>();
     const newData: TModel = await this.dataService.createAsync(message);
@@ -125,7 +125,7 @@ export class BaseController<TModel extends BaseModel> {
   }
 
   @Put(':id')
-  public async update(@Res() res, @Param('id', new ValidateObjectId()) id, @Body() message: TModel): Promise<TModel>
+  public async update(@Res() res, @Param('id', new ValidateObjectId()) id, @Body() message: TModel): Promise<ActionResponse<TModel>>
   {
     if (!id || !message.id) {
       throw new NotFoundException("id required");
@@ -151,7 +151,7 @@ export class BaseController<TModel extends BaseModel> {
   }
 
   @Delete(':id')
-  public async delete(@Res() res, @Param('id', new ValidateObjectId()) id): Promise<TModel>
+  public async delete(@Res() res, @Param('id', new ValidateObjectId()) id): Promise<ActionResponse<TModel>>
   {
     let response: ActionResponse<TModel> = new ActionResponse<TModel>();
     const deleteData: TModel = await this.dataService.deleteByIdAsync(id);

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcryptjs';
 import { UserService } from '../user/user.service';
 import { BasicFilterMessage } from '../shared/base.message';
 import { User, UserSafe } from '../user/user.model';
@@ -17,7 +18,7 @@ export class AuthService {
     let filterMessage: BasicFilterMessage<User> = new BasicFilterMessage<User>();
     filterMessage.filter.username = username;
     const user: User = await this.userService.findOneAsync(filterMessage)
-    if (user && user.password === pass) {
+    if (user && bcrypt.compareSync(pass, user.password)) {
       const { password, ...result } = user;
       return result;
     }
